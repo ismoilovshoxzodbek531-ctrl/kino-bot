@@ -1,19 +1,33 @@
 import asyncio
-import sqlite3
 import logging
+import sqlite3
+import os
+from aiohttp import web
 from aiogram import Bot, Dispatcher, F
 from aiogram.types import Message
 from aiogram.filters import CommandStart
 
-# TOKENNI TO'G'RI YOZING
+# --- SOZLAMALAR ---
 BOT_TOKEN = "8686458756:AAHJgeuDxLn9-tl8TiXYa-yJ7cJ-dejt_Pc"
-
 logging.basicConfig(level=logging.INFO)
 
-# Render uchun oddiy ulanish (Proxy-siz)
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
 
+# --- WEB SERVER (Render uchun) ---
+async def handle(request):
+    return web.Response(text="Bot is running!")
+
+async def start_web_server():
+    app = web.Application()
+    app.router.add_get("/", handle)
+    runner = web.AppRunner(app)
+    await runner.setup()
+    site = web.TCPSite(runner, "0.0.0.0", int(os.getenv("PORT", 10000)))
+    await site.start()
+    logging.info(f"Web server started on port {os.getenv('PORT', 10000)}")
+
+# --- BOT FUNKSIYALARI ---
 def init_db():
     conn = sqlite3.connect('bot.db')
     cursor = conn.cursor()
@@ -23,7 +37,7 @@ def init_db():
 
 @dp.message(CommandStart())
 async def start(message: Message):
-    await message.answer("Salom! Bot Render-da muvaffaqiyatli ishga tushdi. Kino kodini yuboring.")
+    await message.answer("Salom! Bot Render-da muvaffaqiyatli ishga tushdi.")
 
 @dp.message(F.text)
 async def get_movie(message: Message):
@@ -39,6 +53,9 @@ async def get_movie(message: Message):
 
 async def main():
     init_db()
+    # Web server va Botni birga ishga tushiramiz
+    await start_web_server()
+    logging.info("Bot polling boshlandi...")
     await dp.start_polling(bot)
 
 if __name__ == "__main__":

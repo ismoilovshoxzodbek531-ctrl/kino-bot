@@ -1,17 +1,25 @@
 import asyncio
 import sqlite3
+import logging
 from aiogram import Bot, Dispatcher, F
 from aiogram.types import Message
 from aiogram.filters import CommandStart
+from aiogram.fsm.storage.memory import MemoryStorage
 
-# TOKENINGIZNI SHU YERGA YOZING
+# --- SOZLAMALAR ---
+# Tokenni yana bir bor tekshirib ko'ring
 BOT_TOKEN = "8686458756:AAHJgeuDxLn9-tl8TiXYa-yJ7cJ-dejt_Pc"
 
-bot = Bot(token=BOT_TOKEN)
-dp = Dispatcher()
+# Logging (Xatolarni ko'rish uchun)
+logging.basicConfig(level=logging.INFO)
 
+# RENDERDA PROXY KERAK EMAS - Shunchaki Botni o'zini ulaymiz
+bot = Bot(token=BOT_TOKEN)
+dp = Dispatcher(storage=MemoryStorage())
+
+# Baza yaratish
 def init_db():
-    conn = sqlite3.connect('bot.db')
+    conn = sqlite3.connect('bot_database.db')
     cursor = conn.cursor()
     cursor.execute('CREATE TABLE IF NOT EXISTS movies (code TEXT UNIQUE, file_id TEXT)')
     conn.commit()
@@ -23,19 +31,25 @@ async def start(message: Message):
 
 @dp.message(F.text)
 async def get_movie(message: Message):
-    conn = sqlite3.connect('bot.db')
+    # Agar xabar raqam yoki kod bo'lsa bazadan qidiradi
+    conn = sqlite3.connect('bot_database.db')
     cursor = conn.cursor()
     cursor.execute('SELECT file_id FROM movies WHERE code = ?', (message.text,))
     res = cursor.fetchone()
     conn.close()
+    
     if res:
         await message.answer_video(res[0])
     else:
-        await message.answer("Kino topilmadi.")
+        await message.answer("Kino topilmadi. Kodni to'g'ri yozganingizga ishonch hosil qiling.")
 
 async def main():
     init_db()
+    logging.info("Bot ishga tushmoqda...")
     await dp.start_polling(bot)
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    try:
+        asyncio.run(main())
+    except (KeyboardInterrupt, SystemExit):
+        logging.info("Bot to'xtatildi")

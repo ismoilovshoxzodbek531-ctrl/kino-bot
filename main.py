@@ -8,7 +8,7 @@ from aiogram.types import Message
 from aiogram.filters import CommandStart
 
 # --- SOZLAMALAR ---
-BOT_TOKEN = "8686458756:AAHJgeuDxLn9-tl8TiXYa-yJ7cJ-dejt_Pc"
+BOT_TOKEN = "8686458756:AAHJgeuDxLn9-tL8TiXYa-yJ7cJ-dejt_Pc"
 logging.basicConfig(level=logging.INFO)
 
 bot = Bot(token=BOT_TOKEN)

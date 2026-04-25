@@ -9,7 +9,7 @@ from aiogram.filters import CommandStart
 
 # --- SOZLAMALAR ---
 # Tokeningizni tekshirib ko'ring, u qo'shtirnoq ichida bo'lishi shart
-BOT_TOKEN = "8686458756:AAHJgeuDxLn9-tl8TiXYa-yJ7cJ-dejt_Pc"
+BOT_TOKEN = "8686458756:AAHWANdQcUR_0Bg9iMLk0eZbq_C0s4b_sXA"
 
 logging.basicConfig(level=logging.INFO)
 bot = Bot(token=BOT_TOKEN)
